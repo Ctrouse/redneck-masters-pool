@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redneck Masters Pool · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--gd:#1a3d2b;--gm:#2d6a4f;--gl:#52b788;--gp:#d8f3dc;--gold:#c9a84c;--gold-l:#f0d78c;--gold-p:#fdf6e3;--cream:#faf8f2;--white:#fff;--td:#1a1a1a;--tm:#4a4a4a;--tl:#888;--border:rgba(0,0,0,0.1);--shadow:0 2px 16px rgba(26,61,43,0.08);--r:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--td);min-height:100vh;}
+.login-bg{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--gd);}
+.login-card{background:white;border-radius:20px;padding:48px 40px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;}
+.login-logo{font-size:52px;margin-bottom:14px;}
+.login-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--gd);margin-bottom:4px;}
+.login-sub{font-size:13px;color:var(--tl);margin-bottom:28px;}
+.login-label{display:block;text-align:left;font-size:11px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;}
+.login-input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;margin-bottom:14px;background:var(--cream);}
+.login-input:focus{outline:none;border-color:var(--gm);background:white;}
+.login-btn{width:100%;padding:13px;background:var(--gd);color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;}
+.login-btn:hover{background:var(--gm);}
+.login-err{color:#e74c3c;font-size:13px;margin-top:10px;display:none;}
+.app{display:none;}
+.header{background:var(--gd);color:white;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.3);}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid rgba(201,168,76,0.3);flex-wrap:wrap;gap:10px;}
+.h-logo{display:flex;align-items:center;gap:12px;}
+.h-icon{width:36px;height:36px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.h-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;}
+.h-sub{font-size:11px;color:var(--gold-l);letter-spacing:1px;text-transform:uppercase;}
+.h-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.spill{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid;}
+.spill-open{background:rgba(82,183,136,0.2);border-color:var(--gl);color:#b0f0d0;}
+.spill-locked{background:rgba(231,76,60,0.15);border-color:#e74c3c;color:#ff9090;}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#888;display:inline-block;margin-right:4px;}
+.sync-dot.ok{background:#52b788;}.sync-dot.err{background:#e74c3c;}.sync-dot.saving{background:var(--gold);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.sync-label{font-size:11px;color:rgba(255,255,255,0.6);}
+.logout-btn{background:none;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.7);padding:6px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
+.logout-btn:hover{color:white;background:rgba(255,255,255,0.1);}
+.nav{display:flex;padding:0 24px;overflow-x:auto;}
+.nav-btn{background:none;border:none;color:rgba(255,255,255,0.55);padding:12px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.2s;}
+.nav-btn:hover{color:rgba(255,255,255,0.85);}
+.nav-btn.active{color:var(--gold-l);border-bottom-color:var(--gold);}
+.main{padding:24px;max-width:1100px;margin:0 auto;}
+.section{display:none;}.section.active{display:block;}
+.card{background:white;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);padding:20px 24px;margin-bottom:20px;}
+.card-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--gd);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+.fg{margin-bottom:12px;}
+.fg label{display:block;font-size:11px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;}
+.fi,.fsel{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--td);background:var(--cream);}
+.fi:focus,.fsel:focus{outline:none;border-color:var(--gm);background:white;}
+.fi:disabled{opacity:0.5;cursor:not-allowed;}
+.btn{padding:9px 18px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;display:inline-flex;align-items:center;gap:5px;}
+.btn-p{background:var(--gd);color:white;}.btn-p:hover{background:var(--gm);}
+.btn-g{background:var(--gold);color:var(--gd);}.btn-g:hover{background:var(--gold-l);}
+.btn-o{background:none;border:1px solid var(--border);color:var(--tm);}.btn-o:hover{background:var(--cream);}
+.btn-red{background:#c0392b;color:white;}.btn-red:hover{background:#a93226;}
+.btn-green{background:#1a5c38;color:white;}.btn-green:hover{background:var(--gm);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;pointer-events:none;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center;}
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;}
+.alert-info{background:#e8f4f8;border:1px solid #b8d8e8;color:#1a5276;}
+.alert-warn{background:#fff3cd;border:1px solid var(--gold);color:#856404;}
+.alert-ok{background:var(--gp);border:1px solid var(--gl);color:var(--gd);}
+.alert-err{background:#fde8e8;border:1px solid #f5c6c6;color:#a94442;}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;}
+.tag-a{background:#fff3cd;color:#856404;}.tag-b{background:#d1ecf1;color:#0c5460;}
+.tag-c{background:var(--gp);color:#155724;}.tag-d{background:#e2e3e5;color:#383d41;}
+.c-list{display:flex;flex-direction:column;gap:7px;max-height:500px;overflow-y:auto;}
+.c-item{display:grid;grid-template-columns:28px 1fr 1fr auto;gap:8px;align-items:center;padding:8px 12px;background:var(--cream);border-radius:8px;border:1px solid var(--border);}
+.c-num{width:24px;height:24px;background:var(--gd);color:white;border-radius:50%;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;}
+.ci{border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--td);width:100%;}
+.ci:focus{outline:none;}.ci:disabled{opacity:0.5;cursor:not-allowed;}
+.rm-btn{background:none;border:none;color:#ccc;cursor:pointer;font-size:15px;padding:0 4px;}
+.rm-btn:hover{color:#e74c3c;}
+.ft{width:100%;border-collapse:collapse;font-size:13px;}
+.ft th{padding:8px 10px;text-align:left;font-size:11px;font-weight:600;color:var(--tl);text-transform:uppercase;letter-spacing:0.7px;background:var(--cream);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1;}
+.ft td{padding:7px 10px;border-bottom:1px solid rgba(0,0,0,0.04);}
+.ft tr:hover td{background:#f8fdf9;}
+.pt{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}
+.pt th{padding:8px 12px;text-align:left;background:var(--gd);color:white;font-size:12px;}
+.pt td{padding:8px 12px;border-bottom:1px solid var(--border);}
+.pt tr:nth-child(even) td{background:var(--cream);}
+.sc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:9px;}
+.sc-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--cream);border-radius:8px;border:1px solid var(--border);}
+.sc-inp{width:64px;border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:13px;text-align:center;background:white;font-family:'DM Sans',sans-serif;}
+.sc-inp:focus{outline:none;border-color:var(--gm);}
+.tabs{display:flex;margin-bottom:16px;border-bottom:1px solid var(--border);}
+.tab{padding:8px 16px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--tl);border-bottom:2px solid transparent;margin-bottom:-1px;border-radius:8px 8px 0 0;}
+.tab.active{color:var(--gd);border-bottom-color:var(--gm);background:var(--cream);}
+.lb-t{width:100%;border-collapse:collapse;}
+.lb-t th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--tl);text-transform:uppercase;letter-spacing:0.7px;background:var(--cream);border-bottom:1px solid var(--border);}
+.lb-t td{padding:10px 14px;border-bottom:1px solid rgba(0,0,0,0.05);font-size:14px;}
+.lb-t tr:hover td{background:#f8fdf9;}
+.no-data{text-align:center;color:var(--tl);padding:40px 20px;font-size:14px;}
+.sum-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px;}
+.sum-card{background:var(--gd);color:white;border-radius:var(--r);padding:16px 18px;}
+.sum-card.gold{background:var(--gold);color:var(--gd);}
+.sum-card .sl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;opacity:0.7;margin-bottom:6px;}
+.sum-card .sv{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;}
+.sum-card .ss{font-size:12px;opacity:0.65;margin-top:2px;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:white;border-radius:16px;padding:32px 28px;max-width:500px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.3);}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--gd);text-align:center;margin-bottom:8px;}
+.sn{font-size:12px;color:var(--tl);font-style:italic;}
+.sn.ok{color:var(--gm);font-style:normal;font-weight:500;}
+.lock-box{background:var(--cream);border-radius:10px;border:1px solid var(--border);padding:16px 18px;margin-top:16px;}
+.lock-box-title{font-size:11px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:12px;}
+</style>
+</head>
+<body>
+
+<div class="login-bg" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">⛳</div>
+    <div class="login-title">Redneck Masters Pool</div>
+    <div class="login-sub">Admin Panel · Augusta National 2026</div>
+    <label class="login-label">Password</label>
+    <input type="password" class="login-input" id="pwd" placeholder="••••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="login-err">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="h-logo">
+        <div class="h-icon">⛳</div>
+        <div>
+          <div class="h-title">Redneck Masters Pool</div>
+          <div class="h-sub">Admin · Augusta National · April 9–12, 2026</div>
+        </div>
+      </div>
+      <div class="h-right">
+        <span><span class="sync-dot" id="sync-dot"></span><span class="sync-label" id="sync-label">Connecting…</span></span>
+        <span class="spill spill-open" id="lock-pill">🔓 Rosters Open</span>
+        <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" onclick="showSec('setup',this)">⚙️ Setup</button>
+      <button class="nav-btn" onclick="showSec('field',this)">🏌️ Field</button>
+      <button class="nav-btn" onclick="showSec('rosters',this)">📋 Rosters</button>
+      <button class="nav-btn" onclick="showSec('scores',this)">📊 Scores</button>
+      <button class="nav-btn" onclick="showSec('standings',this)">🏆 Standings</button>
+    </nav>
+  </div>
+
+  <div class="main">
+
+    <div id="s-setup" class="section active">
+      <div class="grid2">
+        <div>
+          <div class="card">
+            <div class="card-title">⚙️ Pool Configuration</div>
+            <div class="fg"><label>Pool Name</label><input class="fi" id="cfg-name" value="Redneck Masters Pool"></div>
+            <div class="fg"><label>Buy-in Amount ($)</label><input type="number" class="fi" id="cfg-buyin" value="50" min="1"></div>
+            <div class="fg">
+              <label>Payout Structure</label>
+              <select class="fsel" id="cfg-payout">
+                <option value="standard">Standard — 50/30/20 final + 5% per round leader</option>
+                <option value="heavy-final">Heavy Final — 60/25/15 + 5% per round</option>
+                <option value="round-heavy">Round Heavy — 40/25/15 + 10% per round</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Number of Contestants</label>
+              <input type="number" class="fi" id="cfg-count" value="10" min="2" max="60" oninput="onCountChange()">
+              <div style="font-size:11px;color:var(--tl);margin-top:4px" id="roster-note"></div>
+            </div>
+            <div class="btn-row" style="margin-top:0">
+              <button class="btn btn-p" onclick="saveConfig()">💾 Save Configuration</button>
+              <span class="sn" id="cfg-note"></span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">💰 Prize Pool</div>
+            <div id="prize-preview"><p style="color:var(--tl);font-size:13px">Save configuration to see prize breakdown.</p></div>
+          </div>
+          <div class="card">
+            <div class="card-title">🔗 Contestant Portal URL</div>
+            <div class="alert alert-info">Share this URL with contestants. They sign in with their email — no password needed.</div>
+            <div style="background:var(--cream);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:12px;word-break:break-all;border:1px solid var(--border);color:var(--gm)" id="portal-url">
+              Deploy to GitHub Pages to get your URL
+            </div>
+            <div class="btn-row"><button class="btn btn-o btn-sm" onclick="copyPortalUrl()">📋 Copy URL</button></div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-title">👥 Contestants <span style="font-size:13px;color:var(--tl);font-weight:400" id="c-count-lbl"></span></div>
+            <div class="c-list" id="c-list"></div>
+            <div style="margin-top:8px;font-size:12px;color:var(--tl)" id="c-note"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="s-field" class="section">
+      <div class="card">
+        <div class="card-title">🏌️ 2026 Masters Field — 91 Players</div>
+        <div class="alert alert-info" id="field-note"></div>
+        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+          <input type="text" class="fi" placeholder="Search…" id="field-q" oninput="renderField()" style="max-width:240px">
+          <label style="font-size:13px;color:var(--tm);display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input type="checkbox" id="show-wd" onchange="renderField()"> Show withdrawn
+          </label>
+          <div style="display:flex;gap:6px">
+            <span class="tag tag-a">A Elite</span><span class="tag tag-b">B Contender</span>
+            <span class="tag tag-c">C Longshot</span><span class="tag tag-d">D Dark Horse</span>
+          </div>
+        </div>
+        <div style="overflow-x:auto;max-height:600px;overflow-y:auto">
+          <table class="ft"><thead><tr><th>#</th><th>Player</th><th>Odds (DK)</th><th>Group</th><th>Override</th><th>WD</th></tr></thead>
+          <tbody id="field-tbody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div id="s-rosters" class="section">
+      <div class="card">
+        <div class="card-title">📋 Roster Generation</div>
+        <div id="roster-status-alert"></div>
+        <div class="btn-row">
+          <button class="btn btn-g" id="build-btn" onclick="buildRosters()">🎲 Generate Rosters</button>
+          <button class="btn btn-o" id="rebuild-btn" style="display:none" onclick="rebuildRosters()">🔄 Regenerate Draw</button>
+          <button class="btn btn-o btn-sm" onclick="copyRosters()">📋 Copy Text</button>
+        </div>
+        <div style="font-size:12px;color:var(--tl);margin-top:10px" id="build-status"></div>
+        <div class="lock-box">
+          <div class="lock-box-title">🔒 Roster Lock &amp; Registration Links</div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap">
+            <div style="flex:1;min-width:200px">
+              <div style="font-size:13px;color:var(--tm);margin-bottom:8px">Status: <strong id="lock-text">Open</strong><br><span style="font-size:11px;color:var(--tl)">Auto-locks April 9, 2026 at 10:00 AM ET</span></div>
+              <button class="btn btn-red btn-sm" id="lock-btn" onclick="toggleLock()">🔒 Lock Rosters Now</button>
+            </div>
+            <div style="flex:1;min-width:200px;padding-left:20px;border-left:1px solid var(--border)">
+              <div style="font-size:13px;color:var(--tm);margin-bottom:8px">Send each contestant a link to their portal. Only available after rosters are locked.</div>
+              <button class="btn btn-green" id="send-btn" onclick="triggerSendEmails()" disabled>✉️ Send Registration Links</button>
+              <div style="font-size:11px;color:var(--tl);margin-top:6px" id="send-note">Lock rosters first to enable.</div>
+            </div>
+          </div>
+        </div>
+        <div id="rosters-grid" style="margin-top:20px"></div>
+      </div>
+    </div>
+
+    <div id="s-scores" class="section">
+      <div class="card">
+        <div class="card-title">📊 Score Entry</div>
+        <div class="alert alert-info">Enter cumulative score-to-par per round (e.g. <strong>-5</strong>, <strong>+3</strong>, <strong>0</strong> for even, <strong>MC</strong> for missed cut). Scores publish live to all contestant portals instantly on save.</div>
+        <div class="tabs">
+          <button class="tab active" onclick="showRound(1,this)">Round 1</button>
+          <button class="tab" onclick="showRound(2,this)">Round 2</button>
+          <button class="tab" onclick="showRound(3,this)">Round 3</button>
+          <button class="tab" onclick="showRound(4,this)">Final Round</button>
+        </div>
+        <div id="sc-r1"></div><div id="sc-r2" style="display:none"></div>
+        <div id="sc-r3" style="display:none"></div><div id="sc-r4" style="display:none"></div>
+        <div class="btn-row">
+          <button class="btn btn-p" onclick="saveScores()">💾 Publish Scores</button>
+          <span class="sn" id="score-note"></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="s-standings" class="section">
+      <div class="sum-cards" id="sum-cards"></div>
+      <div class="card"><div class="card-title">🏆 Pool Standings</div><div id="standings-tbl"></div></div>
+      <div class="card"><div class="card-title">🥇 Round Leaders</div><div id="rleaders"></div></div>
+      <div class="card"><div class="card-title">💰 Payout Summary</div><div id="payouts-tbl"></div></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-bg" id="email-modal">
+  <div class="modal-box">
+    <div style="font-size:40px;text-align:center;margin-bottom:12px">✉️</div>
+    <div class="modal-title">Send Registration Links</div>
+    <div style="font-size:13px;color:var(--tm);text-align:center;margin-bottom:20px;line-height:1.6">Your email client will open with a pre-filled message for each contestant. Review and send each one individually.</div>
+    <div style="background:var(--cream);border-radius:10px;border:1px solid var(--border);padding:12px 14px;max-height:200px;overflow-y:auto;margin-bottom:16px" id="modal-list"></div>
+    <div class="alert alert-warn" style="margin-bottom:16px">⚠️ <strong>Are you sure?</strong> Contestants will receive access to the portal. Only do this once rosters are final.</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-o" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green" style="flex:2" onclick="confirmSend()">Yes, Open Email Links →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── JSONbin credentials ───────────────────────────────
+const JSONBIN_KEY  = '$2a$10$eXPXH1VjVkJ7yVRJLQqxO.gLrAMw5gfKusQdgpGqrbC/nNfgAvkmq';
+const JSONBIN_BIN  = '69d11b6daaba882197c43cb1';
+const JSONBIN_URL  = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN}`;
+
+// ─── Read / Write ──────────────────────────────────────
+async function dbRead() {
+  const res = await fetch(JSONBIN_URL, {
+    headers: { 'X-Access-Key': JSONBIN_KEY }
+  });
+  if (!res.ok) throw new Error('Read failed: ' + res.status);
+  const json = await res.json();
+  return json.record;
+}
+
+async function dbWrite(data) {
+  const res = await fetch(JSONBIN_URL, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Access-Key': JSONBIN_KEY
+    },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Write failed: ' + res.status);
+  return res.json();
+}
+
+function setSyncStatus(status, msg) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  if (!dot || !lbl) return;
+  dot.className = 'sync-dot ' + status;
+  lbl.textContent = msg;
+}
+
+// ─── FIELD DATA ────────────────────────────────────────
+const FIELD=[
+  {name:"Scottie Scheffler",odds:350,group:"A"},
+  {name:"Rory McIlroy",odds:700,group:"A"},
+  {name:"Bryson DeChambeau",odds:1000,group:"A"},
+  {name:"Jon Rahm",odds:1000,group:"A"},
+  {name:"Ludvig Åberg",odds:1600,group:"A"},
+  {name:"Xander Schauffele",odds:1800,group:"A"},
+  {name:"Collin Morikawa",odds:2200,group:"A"},
+  {name:"Tommy Fleetwood",odds:2500,group:"A"},
+  {name:"Cameron Young",odds:2700,group:"A"},
+  {name:"Justin Rose",odds:2800,group:"B"},
+  {name:"Patrick Reed",odds:3000,group:"B"},
+  {name:"Matt Fitzpatrick",odds:3000,group:"B"},
+  {name:"Patrick Cantlay",odds:3000,group:"B"},
+  {name:"Hideki Matsuyama",odds:3500,group:"B"},
+  {name:"Viktor Hovland",odds:3500,group:"B"},
+  {name:"Chris Gotterup",odds:3500,group:"B"},
+  {name:"Brooks Koepka",odds:3800,group:"B"},
+  {name:"Justin Thomas",odds:4000,group:"B"},
+  {name:"Jordan Spieth",odds:4000,group:"B"},
+  {name:"Robert MacIntyre",odds:4000,group:"B"},
+  {name:"Tyrrell Hatton",odds:4000,group:"B"},
+  {name:"Max Homa",odds:4500,group:"B"},
+  {name:"Akshay Bhatia",odds:4500,group:"B"},
+  {name:"Shane Lowry",odds:5000,group:"B"},
+  {name:"Corey Conners",odds:5000,group:"B"},
+  {name:"Keegan Bradley",odds:5000,group:"B"},
+  {name:"Sepp Straka",odds:5000,group:"B"},
+  {name:"Russell Henley",odds:5000,group:"B"},
+  {name:"Sam Burns",odds:5000,group:"B"},
+  {name:"Tom Kim",odds:5500,group:"C"},
+  {name:"Cameron Smith",odds:6600,group:"C"},
+  {name:"Adam Scott",odds:6600,group:"C"},
+  {name:"Min Woo Lee",odds:6600,group:"C"},
+  {name:"Jake Knapp",odds:6000,group:"C"},
+  {name:"Si Woo Kim",odds:6000,group:"C"},
+  {name:"Sungjae Im",odds:6000,group:"C"},
+  {name:"Tony Finau",odds:6500,group:"C"},
+  {name:"Jason Day",odds:7000,group:"C"},
+  {name:"Daniel Berger",odds:7000,group:"C"},
+  {name:"Davis Riley",odds:7000,group:"C"},
+  {name:"Maverick McNealy",odds:8000,group:"C"},
+  {name:"Wyndham Clark",odds:8000,group:"C"},
+  {name:"Nick Taylor",odds:8000,group:"C"},
+  {name:"Sam Stevens",odds:9000,group:"C"},
+  {name:"J.J. Spaun",odds:9000,group:"C"},
+  {name:"Harris English",odds:9000,group:"C"},
+  {name:"Dustin Johnson",odds:9000,group:"C"},
+  {name:"Nicolai Højgaard",odds:9000,group:"C"},
+  {name:"Jacob Bridgeman",odds:10000,group:"C"},
+  {name:"Alex Noren",odds:10000,group:"C"},
+  {name:"Matt McCarty",odds:10000,group:"C"},
+  {name:"Sergio Garcia",odds:10000,group:"C"},
+  {name:"Andrew Novak",odds:10000,group:"C"},
+  {name:"Ryan Gerard",odds:11000,group:"D"},
+  {name:"Brian Harman",odds:15000,group:"D"},
+  {name:"Aaron Rai",odds:13000,group:"D"},
+  {name:"Johnny Keefer",odds:13000,group:"D"},
+  {name:"Rasmus Neergaard-Petersen",odds:13000,group:"D"},
+  {name:"Tom McKibbin",odds:14000,group:"D"},
+  {name:"Carlos Ortiz",odds:15000,group:"D"},
+  {name:"Max Greyserman",odds:15000,group:"D"},
+  {name:"Harry Hall",odds:15000,group:"D"},
+  {name:"Ben Griffin",odds:15000,group:"D"},
+  {name:"Kristoffer Reitan",odds:15000,group:"D"},
+  {name:"Gary Woodland",odds:15000,group:"D"},
+  {name:"Kurt Kitayama",odds:20000,group:"D"},
+  {name:"Nico Echavarria",odds:20000,group:"D"},
+  {name:"Ryan Fox",odds:20000,group:"D"},
+  {name:"Aldrich Potgieter",odds:20000,group:"D"},
+  {name:"Brian Campbell",odds:25000,group:"D"},
+  {name:"Haotong Li",odds:25000,group:"D"},
+  {name:"Marco Penge",odds:25000,group:"D"},
+  {name:"Michael Kim",odds:30000,group:"D"},
+  {name:"Michael Brennan",odds:30000,group:"D"},
+  {name:"Sami Välimäki",odds:30000,group:"D"},
+  {name:"Casey Jarvis",odds:20000,group:"D"},
+  {name:"Bubba Watson",odds:25000,group:"D"},
+  {name:"Charl Schwartzel",odds:35000,group:"D"},
+  {name:"Zach Johnson",odds:40000,group:"D"},
+  {name:"Ángel Cabrera",odds:50000,group:"D"},
+  {name:"Danny Willett",odds:50000,group:"D"},
+  {name:"Fred Couples",odds:100000,group:"D"},
+  {name:"Vijay Singh",odds:100000,group:"D"},
+  {name:"Mike Weir",odds:100000,group:"D"},
+  {name:"José María Olazábal",odds:200000,group:"D"},
+  {name:"Mason Howell (a)",odds:200000,group:"D"},
+  {name:"Jackson Herrington (a)",odds:200000,group:"D"},
+  {name:"Ethan Fang (a)",odds:200000,group:"D"},
+  {name:"Brandon Holtz (a)",odds:200000,group:"D"},
+  {name:"Fifa Laopakdee (a)",odds:200000,group:"D"},
+  {name:"Mateo Pulcini (a)",odds:200000,group:"D"},
+  {name:"Naoyuki Kataoka",odds:200000,group:"D"},
+  {name:"Tiger Woods",odds:15000,group:"D",w:true},
+  {name:"Phil Mickelson",odds:20000,group:"D",w:true},
+];
+
+// ─── APP STATE ─────────────────────────────────────────
+const LOCK_DATE = new Date('2026-04-09T10:00:00-04:00');
+let S = {
+  poolName:'Redneck Masters Pool', buyin:50, payoutType:'standard',
+  contestants:[], rosters:{}, rostersBuilt:false,
+  manualLock:false, emailsSent:false,
+  scores:{1:{},2:{},3:{},4:{}}
+};
+
+// ─── AUTH ──────────────────────────────────────────────
+function doLogin(){
+  if(document.getElementById('pwd').value === 'masterspool'){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    init();
+  } else {
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('pwd').value='';
+  }
+}
+function doLogout(){
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('pwd').value='';
+}
+
+// ─── INIT ──────────────────────────────────────────────
+async function init(){
+  setSyncStatus('saving','Loading…');
+  try {
+    const data = await dbRead();
+    if(data && data.poolName) Object.assign(S, data);
+    setSyncStatus('ok','Synced ✓');
+  } catch(e) {
+    setSyncStatus('err','Sync error');
+    console.error(e);
+  }
+  applyToUI();
+  updatePortalUrl();
+}
+
+function applyToUI(){
+  document.getElementById('cfg-name').value = S.poolName;
+  document.getElementById('cfg-buyin').value = S.buyin;
+  document.getElementById('cfg-payout').value = S.payoutType || 'standard';
+  document.getElementById('cfg-count').value = S.contestants.length || 10;
+  if(!S.contestants.length) S.contestants = Array(10).fill(null).map(()=>({name:'',email:''}));
+  renderContestants();
+  updateRosterNote();
+  renderPrize();
+  updateLockUI();
+}
+
+async function persist(note){
+  setSyncStatus('saving','Saving…');
+  try {
+    await dbWrite(S);
+    setSyncStatus('ok','Saved ✓');
+    if(note){const el=document.getElementById(note);if(el){el.textContent='✓ Saved '+new Date().toLocaleTimeString();el.className='sn ok';}}
+  } catch(e) {
+    setSyncStatus('err','Save failed — check connection');
+    alert('Save failed. Check your internet connection and try again.');
+  }
+}
+
+// ─── NAV ───────────────────────────────────────────────
+function showSec(name,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='field') renderField();
+  if(name==='rosters') renderRosters();
+  if(name==='scores') renderAllScores();
+  if(name==='standings') renderStandings();
+}
+
+// ─── LOCK ──────────────────────────────────────────────
+function isLocked(){ return S.manualLock || new Date() > LOCK_DATE; }
+
+function updateLockUI(){
+  const locked = isLocked();
+  const pill = document.getElementById('lock-pill');
+  const lockBtn = document.getElementById('lock-btn');
+  const lockText = document.getElementById('lock-text');
+  const sendBtn = document.getElementById('send-btn');
+  if(locked){
+    pill.textContent='🔒 Rosters Locked'; pill.className='spill spill-locked';
+    lockText.textContent = new Date()>LOCK_DATE ? 'Locked (tournament started)' : 'Locked (manually)';
+    if(lockBtn){lockBtn.textContent='🔓 Unlock Rosters';lockBtn.className='btn btn-o btn-sm';}
+    if(sendBtn && S.rostersBuilt) sendBtn.removeAttribute('disabled');
+    document.getElementById('send-note').textContent = S.rostersBuilt ? '' : 'Generate rosters first.';
+  } else {
+    pill.textContent='🔓 Rosters Open'; pill.className='spill spill-open';
+    lockText.textContent='Open — editable';
+    if(lockBtn){lockBtn.textContent='🔒 Lock Rosters Now';lockBtn.className='btn btn-red btn-sm';}
+    if(sendBtn) sendBtn.setAttribute('disabled','');
+    document.getElementById('send-note').textContent='Lock rosters first to enable.';
+  }
+  document.querySelectorAll('.ci').forEach(el=>el.disabled=locked);
+  document.querySelectorAll('.rm-btn').forEach(el=>el.disabled=locked);
+  const bb=document.getElementById('build-btn'),rb=document.getElementById('rebuild-btn');
+  if(bb) bb.disabled=locked;
+  if(rb) rb.disabled=locked;
+}
+
+async function toggleLock(){
+  if(new Date()>LOCK_DATE){alert('Auto-locked — tournament has started.');return;}
+  if(!S.manualLock){
+    if(!confirm('Lock rosters now?\n\nYou can still unlock manually before April 9 if needed.')) return;
+    S.manualLock=true;
+  } else {
+    if(!confirm('Unlock rosters? You can make edits until April 9 at 10:00 AM ET.')) return;
+    S.manualLock=false;
+  }
+  await persist();
+  updateLockUI();
+  renderRosters();
+}
+
+// ─── SETUP ─────────────────────────────────────────────
+function onCountChange(){
+  if(isLocked()) return;
+  const n=Math.max(2,Math.min(60,parseInt(document.getElementById('cfg-count').value)||2));
+  while(S.contestants.length<n) S.contestants.push({name:'',email:''});
+  S.contestants=S.contestants.slice(0,n);
+  renderContestants(); updateRosterNote();
+}
+
+async function saveConfig(){
+  S.contestants.forEach((_,i)=>{
+    const ne=document.getElementById('cn-'+i),ee=document.getElementById('ce-'+i);
+    if(ne) S.contestants[i].name=ne.value.trim();
+    if(ee) S.contestants[i].email=ee.value.trim();
+  });
+  S.poolName=document.getElementById('cfg-name').value.trim()||'Redneck Masters Pool';
+  S.buyin=parseFloat(document.getElementById('cfg-buyin').value)||50;
+  S.payoutType=document.getElementById('cfg-payout').value;
+  await persist('cfg-note');
+  renderPrize(); updateRosterNote();
+  document.getElementById('c-note').textContent='✓ Saved at '+new Date().toLocaleTimeString();
+}
+
+function rosterSize(n){
+  const active=FIELD.filter(f=>!f.w);
+  const min=Math.min(...['A','B','C','D'].map(g=>active.filter(f=>f.group===g).length));
+  return{perGroup:Math.max(1,Math.floor(min/n)),total:Math.max(1,Math.floor(min/n))*4};
+}
+
+function updateRosterNote(){
+  const n=S.contestants.length||parseInt(document.getElementById('cfg-count').value)||10;
+  const{perGroup,total}=rosterSize(n);
+  document.getElementById('roster-note').textContent=`Each contestant will get ${total} golfers — ${perGroup} from each of the 4 groups (A/B/C/D).`;
+}
+
+function payouts(total,type){
+  const t=type||S.payoutType||'standard';
+  const rp=t==='round-heavy'?0.10:0.05;
+  const rPool=Math.round(total*rp);
+  const fPool=total-rPool*3;
+  const[f1,f2]=t==='heavy-final'?[0.6,0.25]:[0.5,0.3];
+  const first=Math.round(fPool*f1),second=Math.round(fPool*f2);
+  return{first,second,third:fPool-first-second,roundLeader:rPool};
+}
+
+function renderPrize(){
+  const buyin=parseFloat(document.getElementById('cfg-buyin').value)||S.buyin;
+  const n=S.contestants.filter(c=>c.name).length||S.contestants.length;
+  if(!n) return;
+  const total=buyin*n,p=payouts(total);
+  document.getElementById('prize-preview').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="sum-card" style="padding:14px 16px"><div class="sl">Total Pool</div><div class="sv">$${total.toLocaleString()}</div><div class="ss">${n} × $${buyin}</div></div>
+      <div class="sum-card gold" style="padding:14px 16px"><div class="sl">1st Place</div><div class="sv">$${p.first.toLocaleString()}</div><div class="ss">Final winner</div></div>
+    </div>
+    <table class="pt"><thead><tr><th>Prize</th><th>Amount</th></tr></thead><tbody>
+      <tr><td>🏆 Final 1st</td><td><strong>$${p.first.toLocaleString()}</strong></td></tr>
+      <tr><td>🥈 Final 2nd</td><td><strong>$${p.second.toLocaleString()}</strong></td></tr>
+      <tr><td>🥉 Final 3rd</td><td><strong>$${p.third.toLocaleString()}</strong></td></tr>
+      <tr><td>🏅 R1 Leader</td><td><strong>$${p.roundLeader.toLocaleString()}</strong></td></tr>
+      <tr><td>🏅 R2 Leader</td><td><strong>$${p.roundLeader.toLocaleString()}</strong></td></tr>
+      <tr><td>🏅 R3 Leader</td><td><strong>$${p.roundLeader.toLocaleString()}</strong></td></tr>
+    </tbody></table>`;
+}
+
+function renderContestants(){
+  const locked=isLocked();
+  document.getElementById('c-count-lbl').textContent=`(${S.contestants.length})`;
+  document.getElementById('c-list').innerHTML=S.contestants.map((c,i)=>`
+    <div class="c-item">
+      <div class="c-num">${i+1}</div>
+      <input class="ci" id="cn-${i}" type="text" value="${c.name||''}" placeholder="Name…" ${locked?'disabled':''} onchange="S.contestants[${i}].name=this.value.trim()">
+      <input class="ci" id="ce-${i}" type="email" value="${c.email||''}" placeholder="Email…" ${locked?'disabled':''} onchange="S.contestants[${i}].email=this.value.trim()">
+      <button class="rm-btn" ${locked?'disabled':''} onclick="removeC(${i})">✕</button>
+    </div>`).join('');
+}
+
+function removeC(i){
+  if(isLocked()) return;
+  S.contestants.splice(i,1);
+  document.getElementById('cfg-count').value=S.contestants.length;
+  renderContestants(); updateRosterNote();
+}
+
+function updatePortalUrl(){
+  const base=window.location.href.replace(/[^/]*$/, '');
+  const url=base+'redneck-masters-portal.html';
+  document.getElementById('portal-url').textContent=url;
+}
+function copyPortalUrl(){
+  const t=document.getElementById('portal-url').textContent;
+  navigator.clipboard.writeText(t).then(()=>alert('Portal URL copied!')).catch(()=>alert('URL:\n'+t));
+}
+
+// ─── FIELD ─────────────────────────────────────────────
+function renderField(){
+  const q=(document.getElementById('field-q').value||'').toLowerCase();
+  const showWd=document.getElementById('show-wd').checked;
+  const active=FIELD.filter(f=>!f.w);
+  const rows=FIELD.filter(f=>(showWd||!f.w)&&f.name.toLowerCase().includes(q));
+  const n=S.contestants.length||10;
+  const{perGroup,total}=rosterSize(n);
+  const gc=['A','B','C','D'].map(g=>({g,n:active.filter(f=>f.group===g).length}));
+  document.getElementById('field-note').innerHTML=
+    `<strong>${active.length} active players</strong> (${FIELD.filter(f=>f.w).length} withdrawn) · DraftKings odds · With <strong>${n} contestants</strong>: <strong>${perGroup}/group = ${total} golfers each</strong> &nbsp;|&nbsp; ${gc.map(x=>`<span class="tag tag-${x.g.toLowerCase()}" style="margin-left:4px">${x.g}</span> ${x.n}`).join('')}`;
+  document.getElementById('field-tbody').innerHTML=rows.map(f=>`
+    <tr style="${f.w?'opacity:0.38':''}">
+      <td style="color:var(--tl)">${FIELD.indexOf(f)+1}</td>
+      <td style="font-weight:500">${f.name}${f.w?` <span style="font-size:10px;background:#fde8e8;color:#a94442;padding:1px 5px;border-radius:6px;font-weight:600">WD</span>`:''}</td>
+      <td style="font-family:monospace;color:var(--gm);font-size:12px">+${f.odds.toLocaleString()}</td>
+      <td><span class="tag tag-${f.group.toLowerCase()}">${f.group}</span></td>
+      <td><select onchange="FIELD[${FIELD.indexOf(f)}].group=this.value;renderField()" style="font-size:12px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:white">
+        ${['A','B','C','D'].map(g=>`<option${f.group===g?' selected':''}>${g}</option>`).join('')}
+      </select></td>
+      <td style="text-align:center"><input type="checkbox" ${f.w?'checked':''} onchange="FIELD[${FIELD.indexOf(f)}].w=this.checked;renderField()" title="Mark withdrawn"></td>
+    </tr>`).join('');
+}
+
+// ─── ROSTERS ───────────────────────────────────────────
+function shuf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+async function buildRosters(){
+  if(isLocked()){alert('Rosters are locked.');return;}
+  S.contestants.forEach((_,i)=>{
+    const ne=document.getElementById('cn-'+i),ee=document.getElementById('ce-'+i);
+    if(ne) S.contestants[i].name=ne.value.trim();
+    if(ee) S.contestants[i].email=ee.value.trim();
+  });
+  const active=S.contestants.filter(c=>c.name);
+  if(!active.length){alert('Add contestant names in Setup first.');return;}
+  const{perGroup}=rosterSize(active.length);
+  const pools={
+    A:shuf(FIELD.filter(f=>!f.w&&f.group==='A')),
+    B:shuf(FIELD.filter(f=>!f.w&&f.group==='B')),
+    C:shuf(FIELD.filter(f=>!f.w&&f.group==='C')),
+    D:shuf(FIELD.filter(f=>!f.w&&f.group==='D'))
+  };
+  const rosters={};
+  active.forEach(c=>rosters[c.name]=[]);
+  ['A','B','C','D'].forEach(g=>{
+    let idx=0;
+    for(let pick=0;pick<perGroup;pick++){
+      const order=pick%2===0?active:[...active].reverse();
+      order.forEach(c=>{
+        let found=false;
+        for(let t=0;t<pools[g].length;t++){
+          const cand=pools[g][(idx+t)%pools[g].length];
+          if(!rosters[c.name].find(r=>r.name===cand.name)){
+            rosters[c.name].push({name:cand.name,group:g,odds:cand.odds});
+            idx=(idx+t+1)%pools[g].length; found=true; break;
+          }
+        }
+        if(!found&&pools[g].length){
+          const cand=pools[g][idx%pools[g].length];
+          rosters[c.name].push({name:cand.name,group:g,odds:cand.odds});
+          idx=(idx+1)%pools[g].length;
+        }
+      });
+    }
+  });
+  S.rosters=rosters; S.rostersBuilt=true;
+  await persist();
+  document.getElementById('rebuild-btn').style.display='inline-flex';
+  document.getElementById('build-status').innerHTML=`<span style="color:var(--gm)">✓ Rosters built for ${active.length} contestants — ${perGroup} golfer(s) per group (${perGroup*4} total each)</span>`;
+  updateLockUI();
+  renderRostersGrid();
+}
+
+async function rebuildRosters(){
+  if(isLocked()) return;
+  if(confirm('Regenerate with a new random draw?\n\nAll current rosters will be replaced.')) await buildRosters();
+}
+
+function renderRosters(){
+  const locked=isLocked();
+  document.getElementById('roster-status-alert').innerHTML=locked
+    ?'<div class="alert alert-err">🔒 Rosters are locked — generation and editing disabled.</div>'
+    :'<div class="alert alert-ok">✅ Rosters are open. Generate rosters, lock them when ready, then send registration links.</div>';
+  if(S.rostersBuilt) document.getElementById('rebuild-btn').style.display='inline-flex';
+  if(S.rostersBuilt&&isLocked()) document.getElementById('send-btn').removeAttribute('disabled');
+  renderRostersGrid();
+}
+
+function renderRostersGrid(){
+  const grid=document.getElementById('rosters-grid');
+  const names=Object.keys(S.rosters);
+  if(!names.length){grid.innerHTML='<div class="no-data">No rosters generated yet.</div>';return;}
+  grid.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">${names.map(name=>{
+    const gs=S.rosters[name]||[];
+    return`<div style="border-radius:10px;border:1px solid var(--border);overflow:hidden;background:var(--cream)">
+      <div style="background:var(--gd);color:white;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-weight:600;font-size:14px">${name}</span>
+        <span style="font-size:11px;opacity:0.65">${gs.length} golfers</span>
+      </div>
+      <div style="padding:10px 12px">${gs.map(g=>`
+        <div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(0,0,0,0.05)">
+          <span class="tag tag-${g.group.toLowerCase()}">${g.group}</span>
+          <span style="flex:1;font-size:13px">${g.name}</span>
+          <span style="font-size:11px;color:var(--tl)">+${g.odds.toLocaleString()}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;}).join('')}</div>`;
+}
+
+function copyRosters(){
+  if(!S.rostersBuilt){alert('No rosters yet.');return;}
+  let t=S.poolName+' — 2026 Masters Rosters\n'+'═'.repeat(40)+'\n\n';
+  Object.entries(S.rosters).forEach(([n,gs])=>{t+=n+':\n';gs.forEach(g=>t+=`  [${g.group}] ${g.name} (+${g.odds.toLocaleString()})\n`);t+='\n';});
+  navigator.clipboard.writeText(t).then(()=>alert('Copied!')).catch(()=>alert('Copy failed.'));
+}
+
+// ─── SCORES ────────────────────────────────────────────
+function renderAllScores(){for(let r=1;r<=4;r++) renderRoundScores(r);}
+function renderRoundScores(r){
+  document.getElementById('sc-r'+r).innerHTML=`<div class="sc-grid">${FIELD.map(f=>{
+    const v=S.scores[r]&&S.scores[r][f.name]!==undefined?S.scores[r][f.name]:'';
+    const id='sc'+r+f.name.replace(/\W/g,'');
+    return`<div class="sc-item">
+      <span class="tag tag-${f.group.toLowerCase()}">${f.group}</span>
+      <span style="flex:1;font-size:13px">${f.name}</span>
+      <input type="text" class="sc-inp" id="${id}" value="${v}" placeholder="—">
+    </div>`;}).join('')}</div>`;
+}
+function showRound(r,btn){
+  for(let i=1;i<=4;i++) document.getElementById('sc-r'+i).style.display=i===r?'block':'none';
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',i===r-1));
+}
+async function saveScores(){
+  for(let r=1;r<=4;r++){
+    if(!S.scores[r]) S.scores[r]={};
+    FIELD.forEach(f=>{
+      const id='sc'+r+f.name.replace(/\W/g,'');
+      const el=document.getElementById(id);
+      if(el){
+        const v=el.value.trim();
+        S.scores[r][f.name]=v===''?'':v.toUpperCase()==='MC'?'MC':(isNaN(parseInt(v))?'':parseInt(v));
+      }
+    });
+  }
+  await persist('score-note');
+  renderStandings();
+}
+
+// ─── STANDINGS ─────────────────────────────────────────
+function golferScore(name){
+  let t=null;
+  for(let r=1;r<=4;r++){const v=S.scores[r]&&S.scores[r][name];if(v!==undefined&&v!==''&&v!=='MC'){if(t===null)t=0;t+=parseInt(v)||0;}}
+  return t;
+}
+function roundLeader(rnd){
+  let best=null,leader='',lg='';
+  Object.entries(S.rosters).forEach(([name,gs])=>{
+    gs.forEach(g=>{
+      let cum=0,has=false;
+      for(let r=1;r<=rnd;r++){const v=S.scores[r]&&S.scores[r][g.name];if(v!==undefined&&v!==''&&v!=='MC'){cum+=parseInt(v)||0;has=true;}}
+      if(has&&(best===null||cum<best)){best=cum;leader=name;lg=g.name;}
+    });
+  });
+  return leader?{name:leader,golfer:lg,score:best}:null;
+}
+function fmtScore(s){if(s===null||s===undefined)return'—';if(s===0)return'E';return s<0?String(s):'+'+s;}
+
+function renderStandings(){
+  const names=Object.keys(S.rosters);
+  if(!names.length){
+    ['sum-cards','standings-tbl','rleaders','payouts-tbl'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.innerHTML=id==='sum-cards'?'':'<div class="no-data">Generate rosters and enter scores to see data.</div>';
+    });
+    return;
+  }
+  const n=S.contestants.filter(c=>c.name).length;
+  const total=n*S.buyin,p=payouts(total);
+  document.getElementById('sum-cards').innerHTML=`
+    <div class="sum-card"><div class="sl">Contestants</div><div class="sv">${names.length}</div><div class="ss">in the pool</div></div>
+    <div class="sum-card gold"><div class="sl">Prize Pool</div><div class="sv">$${total.toLocaleString()}</div><div class="ss">$${S.buyin} buy-in</div></div>
+    <div class="sum-card"><div class="sl">1st Place</div><div class="sv">$${p.first.toLocaleString()}</div><div class="ss">Final winner</div></div>
+    <div class="sum-card"><div class="sl">Round Leader</div><div class="sv">$${p.roundLeader.toLocaleString()}</div><div class="ss">Per round R1–R3</div></div>`;
+  const rows=names.map(name=>{
+    let best=null,bg='';
+    (S.rosters[name]||[]).forEach(g=>{const s=golferScore(g.name);if(s!==null&&(best===null||s<best)){best=s;bg=g.name;}});
+    return{name,score:best,golfer:bg};
+  }).filter(r=>r.score!==null).sort((a,b)=>a.score-b.score);
+  document.getElementById('standings-tbl').innerHTML=rows.length?`
+    <table class="lb-t"><thead><tr><th>Rank</th><th>Contestant</th><th>Best Golfer</th><th>Score</th></tr></thead><tbody>${
+      rows.map((r,i)=>{const sc=fmtScore(r.score);return`<tr>
+        <td style="font-weight:700;font-size:16px;color:${['var(--gold)','#aaa','#cd7f32'][i]||'var(--tl)'}">${i+1}</td>
+        <td style="font-weight:500">${r.name}</td>
+        <td style="font-size:12px;color:var(--tl)">${r.golfer}</td>
+        <td style="font-weight:600;font-size:15px;color:${r.score<0?'#e74c3c':''}">${sc}</td>
+      </tr>`;}).join('')
+    }</tbody></table>`:'<div class="no-data">Enter scores and publish to see standings.</div>';
+  const rls=[1,2,3].map(r=>({r,w:roundLeader(r)})).filter(x=>x.w);
+  document.getElementById('rleaders').innerHTML=rls.length?`
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">${rls.map(({r,w})=>`
+      <div style="background:var(--gold-p);border:1px solid var(--gold);border-radius:10px;padding:14px 16px;text-align:center">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--gd);font-weight:600;margin-bottom:4px">Round ${r} Leader</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--gd)">${w.name}</div>
+        <div style="font-size:12px;color:var(--tm);margin-top:3px">via ${w.golfer} · ${fmtScore(w.score)}</div>
+      </div>`).join('')}</div>`:'<div class="no-data">Round leaders appear as scores are entered.</div>';
+  const tally={};
+  rls.forEach(({r,w})=>{if(!tally[w.name])tally[w.name]={t:0,l:[]};tally[w.name].t+=p.roundLeader;tally[w.name].l.push('R'+r+' Leader');});
+  [rows[0]&&{n:rows[0].name,a:p.first,l:'1st Place'},rows[1]&&{n:rows[1].name,a:p.second,l:'2nd Place'},rows[2]&&{n:rows[2].name,a:p.third,l:'3rd Place'}].filter(Boolean).forEach(x=>{
+    if(!tally[x.n])tally[x.n]={t:0,l:[]};tally[x.n].t+=x.a;tally[x.n].l.push(x.l);
+  });
+  const ts=Object.entries(tally).sort((a,b)=>b[1].t-a[1].t);
+  document.getElementById('payouts-tbl').innerHTML=ts.length?`
+    <table class="lb-t"><thead><tr><th>Contestant</th><th>Winnings</th><th>Details</th></tr></thead><tbody>${
+      ts.map(([n,d])=>`<tr>
+        <td style="font-weight:600">${n}</td>
+        <td style="font-weight:700;color:var(--gold);font-size:16px">$${d.t.toLocaleString()}</td>
+        <td style="font-size:12px;color:var(--tm)">${d.l.join(' · ')}</td>
+      </tr>`).join('')
+    }</tbody></table>`:'<div class="no-data">Payouts appear as standings are determined.</div>';
+}
+
+// ─── EMAIL ─────────────────────────────────────────────
+function triggerSendEmails(){
+  if(!isLocked()){alert('Lock rosters before sending registration links.');return;}
+  if(!S.rostersBuilt){alert('Generate rosters first.');return;}
+  const withEmail=S.contestants.filter(c=>c.name&&c.email);
+  const noEmail=S.contestants.filter(c=>c.name&&!c.email);
+  document.getElementById('modal-list').innerHTML=
+    withEmail.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.06)">
+      <div style="width:28px;height:28px;background:var(--gd);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${c.name[0].toUpperCase()}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${c.name}</div><div style="font-size:11px;color:var(--tl)">${c.email}</div></div>
+    </div>`).join('')+
+    (noEmail.length?`<div style="margin-top:8px;padding:8px 10px;background:#fff3cd;border-radius:6px;font-size:12px;color:#856404">⚠️ No email for: ${noEmail.map(c=>c.name).join(', ')}</div>`:'');
+  if(!withEmail.length){alert('No contestants have email addresses. Add them in Setup first.');return;}
+  document.getElementById('email-modal').classList.add('open');
+}
+function closeModal(){document.getElementById('email-modal').classList.remove('open');}
+document.addEventListener('click',e=>{if(e.target.id==='email-modal') closeModal();});
+
+async function confirmSend(){
+  closeModal();
+  const withEmail=S.contestants.filter(c=>c.name&&c.email);
+  const portalUrl=document.getElementById('portal-url').textContent;
+  const total=S.contestants.filter(c=>c.name).length*S.buyin;
+  const p=payouts(total);
+  const container=document.createElement('div');
+  container.style.cssText='margin-top:16px;';
+  container.innerHTML='<div style="font-size:12px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:10px">📨 Open each link, review, and click Send:</div>';
+  withEmail.forEach((c,i)=>{
+    const sub=encodeURIComponent(`${S.poolName} — You're In! Access Your Masters Portal ⛳`);
+    const body=encodeURIComponent(
+`Hi ${c.name},
+
+You're in the ${S.poolName}! The 2026 Masters starts Thursday, April 9 at Augusta National.
+
+YOUR PORTAL
+━━━━━━━━━━━━━━━━━━━━━
+${portalUrl}
+
+Sign in with: ${c.email}
+
+Your portal shows your full roster, live Masters leaderboard, pool standings, and prizes — updated in real time all week.
+
+PRIZE POOL — $${total.toLocaleString()} total
+━━━━━━━━━━━━━━━━━━━━━
+🏆 Final 1st:   $${p.first.toLocaleString()}
+🥈 Final 2nd:   $${p.second.toLocaleString()}
+🥉 Final 3rd:   $${p.third.toLocaleString()}
+🏅 R1 Leader:   $${p.roundLeader.toLocaleString()}
+🏅 R2 Leader:   $${p.roundLeader.toLocaleString()}
+🏅 R3 Leader:   $${p.roundLeader.toLocaleString()}
+
+Good luck! ⛳`);
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--cream);border-radius:8px;border:1px solid var(--border);margin-bottom:6px';
+    row.innerHTML=`
+      <div style="width:30px;height:30px;background:var(--gd);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${c.name[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500">${c.name}</div>
+        <div style="font-size:11px;color:var(--tl);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.email}</div>
+      </div>
+      <a href="mailto:${c.email}?subject=${sub}&body=${body}" id="ml${i}" onclick="markSent(${i})"
+        style="background:var(--gd);color:white;padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap">Open Email ↗</a>
+      <span id="sent${i}" style="font-size:11px;color:var(--gm);font-weight:600;display:none">✓ Sent</span>`;
+    container.appendChild(row);
+  });
+  document.querySelector('.lock-box').after(container);
+  document.getElementById('send-note').textContent=`${withEmail.length} email links ready below ↓`;
+  S.emailsSent=true; await persist();
+}
+function markSent(i){
+  setTimeout(()=>{
+    const s=document.getElementById('sent'+i),l=document.getElementById('ml'+i);
+    if(s) s.style.display='inline';
+    if(l){l.style.opacity='0.35';l.style.pointerEvents='none';}
+  },600);
+}
+</script>
+</body>
+</html>
